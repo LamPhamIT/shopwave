@@ -8,3 +8,13 @@ J
 :
 
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
+M
+.github/workflow_template.yml,4/d/4d58129bcfa3175a00131ae6533c8108dac3f18e
+T
+$.github/workflows/actions/action.yml,2/2/220205b0ea40e7835debc12c4ca53c33e817426f
+?
+product/pom.xml,c/a/cae8333de7fc3bae59917f00a8cc124140367b26
+P
+ .github/workflows/product-ci.yml,a/4/a4a84c74d93cef10228578202d649cdda38ebe7a
+B
+product/Dockerfile,3/a/3a810bb6afdb3ae16914340d0150d4dc049b64e2
