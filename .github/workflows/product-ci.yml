@@ -22,8 +22,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
-      - name: Build product service
-        run: mvn clean install -f product
+      - name: Run Maven Build Command
+        run: mvn clean install -DskipTests -f product
+      - name: Run Maven Test
+        run: mvn test -f product
       - name: Test report
         uses: dorny/test-reporter@v1
         if: always()
