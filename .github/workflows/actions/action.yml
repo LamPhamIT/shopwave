@@ -1,4 +1,4 @@
-run:
+runs:
   using: "composite"
   steps:
     - name: Set up JDK 21
@@ -7,14 +7,14 @@ run:
         distribution: 'temurin'
         java-version: '21'
     - name: Cache local Maven repository
-      uses: actions/cache@v4
+      uses: actions/cache@v4.0.2
       with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-maven-
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
     - name: Cache Sonarcloud packages
-      uses: actions/cache@v4
+      uses: actions/cache@v4.0.2
       with:
-        path: ~/.sonar
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
+          path: ~/.sonar
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
