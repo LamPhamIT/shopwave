@@ -22,6 +22,18 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
+      - name: Cache local Maven repository
+        uses: actions/cache@v4.0.2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - name: Cache Sonarcloud packages
+        uses: actions/cache@v4.0.2
+        with:
+          path: ~/.sonar
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -f product
       - name: Run Maven Test
