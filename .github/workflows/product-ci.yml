@@ -1,0 +1,54 @@
+name: Product CI
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "product/**"
+      - "./github/workflows/actions/action.yml"
+      - "./github/workflows/product-ci.yml"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "product/**"
+      - "./github/workflows/actions/action.yml"
+      - "./github/workflows/product-ci.yml"
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Build Command
+        run: mvn clean install -DskipTests -f product
+      - name: Run Maven Test
+        run: mvn test -f product
+      - name: Test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit-Test-Results
+          path: "product/**/surefire-reports/*.xml"
+          reporter: java-junit
+      - name: Analyze with Sonarcloud
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f product
+      - name: Login container registry
+        if: ${{ github.refs == 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_LOGIN_TOKEN }}
+      - name: Build and push docker image
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./product
+          push: true
+          tags: ghcr.io/lamphamit/appasteacher-product:latest
