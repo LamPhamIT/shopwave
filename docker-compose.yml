@@ -52,6 +52,11 @@ services:
     image: mongo
     ports:
       - "27018:27017"
+  config-server:
+    build: ./config-server
+    image: ghcr.io/lamphamit/shopwave-config-server
+    networks:
+      - appasteacher-network
 networks:
   appasteacher-network:
     driver: bridge
