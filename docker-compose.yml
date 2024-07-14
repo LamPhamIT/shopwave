@@ -1,41 +1,60 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: postgres:${POSTGRES_VERSION}
+  identity:
+    image: quay.io/keycloak/keycloak:24.0.4
+    ports:
+      - ${KC_PORT}:8080
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      KEYCLOAK_ADMIN: ${KC_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
+      KC_PROXY: passthrough
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER:-admin}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+    volumes:
+      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    networks:
+      - appasteacher-network
+    command: ['start-dev']
+    depends_on:
+      - postgres
+  postgres:
+    image: debezium/postgres:16-alpine
+    build: ./docker/postgres
+    hostname: ${POSTGRES_HOST}
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
     volumes:
       - postgres:/var/lib/postgresql/data
+      - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
+      -  ./docker/postgres/postgresql.conf.sample:/usr/share/postgresql/postgresql.conf.sample
+    ports:
+      - ${POSTGRES_PORT}:5432
     networks:
       - appasteacher-network
   pgadmin:
-    image: dpage/pgadmin4:6.20
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'True'
+    restart: unless-stopped
     volumes:
       - pgadmin:/var/lib/pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@yas.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
     networks:
       - appasteacher-network
-  identity:
-    image: quay.io/keycloak/keycloak:${KC_VERSION}
-    command: ["start-dev", "--import-realm"]
-    environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KC_DB: postgres
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: password
-      KC_DB_URL: "jdbc:postgresql://postgres:5432/keycloak"
+  mongodb:
+    image: mongo
     ports:
-      - ${KC_PORT}:8080
-    volumes:
-      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
-    depends_on:
-      - postgres
+      - "27018:27017"
+  config-server:
+    build: ./config-server
+    image: ghcr.io/lamphamit/shopwave-config-server
     networks:
       - appasteacher-network
 networks:

@@ -1,17 +1,17 @@
-name: product CI
+name: config-server CI
 on:
   pull_request:
     branches: [ "main" ]
     paths:
-      - "product/**"
+      - "config-server/**"
       - "./github/workflows/actions/action.yml"
-      - "./github/workflows/product-ci.yml"
+      - "./github/workflows/config-server-ci.yml"
   push:
     branches: [ "main" ]
     paths:
-      - "product/**"
+      - "config-server/**"
       - "./github/workflows/actions/action.yml"
-      - "./github/workflows/product-ci.yml"
+      - "./github/workflows/config-server-ci.yml"
 
 jobs:
   Build:
@@ -23,21 +23,21 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f product
+        run: mvn clean install -DskipTests -f config-server
       - name: Run Maven Test
-        run: mvn test -f product
+        run: mvn test -f config-server
       - name: Test report
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Unit-Test-Results
-          path: "product/**/surefire-reports/*.xml"
+          path: "config-server/**/surefire-reports/*.xml"
           reporter: java-junit
       - name: Analyze with Sonarcloud
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f product
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f config-server
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -53,6 +53,6 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v5
         with:
-          context: ./product
+          context: ./config-server
           push: true
-          tags: ghcr.io/lamphamit/appasteacher-product:latest
+          tags: ghcr.io/lamphamit/appasteacher-config-server:latest

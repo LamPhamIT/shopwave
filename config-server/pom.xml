@@ -8,23 +8,19 @@
 		<version>${revision}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>product</artifactId>
+	<artifactId>config-server</artifactId>
 	<version>${revision}</version>
-	<name>product</name>
-	<description>product service</description>
+	<name>configserver</name>
+	<description>Config server Shopwave</description>
 	<properties>
 		<sonar.organization>lamphamit</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.projectKey>lamphamit-shopwave_product</sonar.projectKey>
+		<sonar.projectKey>lamphamit-shopwave_config-server</sonar.projectKey>
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-config-client</artifactId>
+			<artifactId>spring-cloud-config-server</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -35,5 +31,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
